@@ -22,6 +22,7 @@ AMBaseProjectile::AMBaseProjectile()
 	MovementComp->InitialSpeed = 1000.f;
 	MovementComp->ProjectileGravityScale = 0.f;
 
+	InitialLifeSpan = 2.f;
 }
 
 

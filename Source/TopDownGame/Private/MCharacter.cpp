@@ -4,7 +4,8 @@
 #include "MCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "MGun.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMCharacter::AMCharacter()
@@ -17,16 +18,17 @@ AMCharacter::AMCharacter()
 
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
+
+	SkeletalComp = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalComp");
+	SkeletalComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("GunSocket_01"));
+
+	FireSound = CreateDefaultSubobject<USoundCue>("FireSound");
 }
 
 // Called when the game starts or when spawned
 void AMCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	Gun = GetWorld()->SpawnActor<AMGun>(GunClass);
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("GunSocket_01"));
-	Gun->SetOwner(this);
 }
 
 // Called every frame
@@ -46,6 +48,7 @@ void AMCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AMCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AMCharacter::StopFire);
 }
 
 void AMCharacter::MoveForward(float Value)
@@ -63,7 +66,35 @@ void AMCharacter::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
+
+
+
 void AMCharacter::PrimaryAttack()
 {
-	Gun->SpawnProjectile();
+	
+	SpawnProjectile(ProjectileClass);
+}
+
+void AMCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
+	FVector MuzzleLocation = SkeletalComp->GetSocketLocation("MuzzleFlashSocket");
+
+	FRotator MuzzleRotation = SkeletalComp->GetSocketRotation("MuzzleFlashSocket");
+
+	FTransform SpawnTransform = FTransform(GetControlRotation(), MuzzleLocation);
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Instigator = this;
+
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, MuzzleLocation, 3.f);
+	GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
+}
+
+
+
+
+void AMCharacter::StopFire()
+{
+	
 }

@@ -9,7 +9,8 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class AMGun;
+class USkeletalMeshComponent;
+class USoundCue;
 
 UCLASS()
 class TOPDOWNGAME_API AMCharacter : public ACharacter
@@ -30,16 +31,25 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AMGun> GunClass;
+	UPROPERTY(VisibleAnywhere)
+	USkeletalMeshComponent* SkeletalComp;
 
-	AMGun* Gun;
+	UPROPERTY(EditAnywhere, Category = "Fire")
+	TSubclassOf<AActor> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Fire")
+	USoundCue* FireSound;
+
+	bool bCanFire;
 
 	//FUNCTIONS
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
+
 	void PrimaryAttack();
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
+	void StopFire();
 
 public:	
 	// Called every frame
