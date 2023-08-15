@@ -4,8 +4,7 @@
 #include "MCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Sound/SoundCue.h"
-#include "Kismet/GameplayStatics.h"
+#include "MAttributeComponent.h"
 
 // Sets default values
 AMCharacter::AMCharacter()
@@ -22,7 +21,7 @@ AMCharacter::AMCharacter()
 	SkeletalComp = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalComp");
 	SkeletalComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("GunSocket_01"));
 
-	FireSound = CreateDefaultSubobject<USoundCue>("FireSound");
+	AttributeComp = CreateDefaultSubobject<UMAttributeComponent>("AttributeComp");
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +47,6 @@ void AMCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &AMCharacter::PrimaryAttack);
-	PlayerInputComponent->BindAction("PrimaryAttack", IE_Released, this, &AMCharacter::StopFire);
 }
 
 void AMCharacter::MoveForward(float Value)
@@ -87,14 +85,6 @@ void AMCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	SpawnParams.Instigator = this;
 
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireSound, MuzzleLocation, 3.f);
 	GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
 }
 
-
-
-
-void AMCharacter::StopFire()
-{
-	
-}

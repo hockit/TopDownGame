@@ -5,14 +5,14 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "MAttributeComponent.h"
 
 // Sets default values
 AMBaseProjectile::AMBaseProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	SphereComp = CreateDefaultSubobject<USphereComponent>("SphereComp");
+	SphereComp->SetCollisionProfileName("Projectile");
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &AMBaseProjectile::OnActorOverlap);
 	RootComponent = SphereComp;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("MeshComp");
@@ -22,8 +22,21 @@ AMBaseProjectile::AMBaseProjectile()
 	MovementComp->InitialSpeed = 1000.f;
 	MovementComp->ProjectileGravityScale = 0.f;
 
-	InitialLifeSpan = 2.f;
+	Damage = 25.f;
+
 }
 
 
-
+void AMBaseProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor)
+	{
+		UMAttributeComponent* AttributeComponent = Cast<UMAttributeComponent>(OtherActor->GetComponentByClass(UMAttributeComponent::StaticClass()));
+		
+		 if(AttributeComponent)
+		 {
+			AttributeComponent->HealthChange(Damage);
+			Destroy();
+		 }		
+	}
+}

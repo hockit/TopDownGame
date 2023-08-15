@@ -10,7 +10,7 @@
 class USpringArmComponent;
 class UCameraComponent;
 class USkeletalMeshComponent;
-class USoundCue;
+class UMAttributeComponent;
 
 UCLASS()
 class TOPDOWNGAME_API AMCharacter : public ACharacter
@@ -37,10 +37,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Fire")
 	TSubclassOf<AActor> ProjectileClass;
 
-	UPROPERTY(EditAnywhere, Category = "Fire")
-	USoundCue* FireSound;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UMAttributeComponent* AttributeComp;
 
-	bool bCanFire;
 
 	//FUNCTIONS
 
@@ -49,7 +48,7 @@ protected:
 
 	void PrimaryAttack();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
-	void StopFire();
+	
 
 public:	
 	// Called every frame
