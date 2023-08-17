@@ -35,7 +35,7 @@ void AMBaseProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, 
 		
 		 if(AttributeComponent)
 		 {
-			AttributeComponent->HealthChange(Damage);
+			AttributeComponent->ChangeHealth(-Damage);
 			Destroy();
 		 }		
 	}

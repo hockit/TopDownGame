@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class USkeletalMeshComponent;
 class UMAttributeComponent;
+class UMInteractComponent;
 
 UCLASS()
 class TOPDOWNGAME_API AMCharacter : public ACharacter
@@ -22,8 +23,6 @@ public:
 	AMCharacter();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
@@ -40,20 +39,26 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UMAttributeComponent* AttributeComp;
 
+	UPROPERTY(VisibleAnywhere)
+	UMInteractComponent* InteractComp;
+
 
 	//FUNCTIONS
 
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
+	void BasicInteract();
+
 	void PrimaryAttack();
 	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 	
+	UFUNCTION()
+	void OnHealthChange(AActor* InstigatorActor, UMAttributeComponent* OwnComp, float ChangedHealth, float Delta);
+	virtual void PostInitializeComponents() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+	
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

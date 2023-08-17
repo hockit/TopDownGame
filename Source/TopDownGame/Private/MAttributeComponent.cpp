@@ -9,9 +9,16 @@ UMAttributeComponent::UMAttributeComponent()
 	Health = 100.f;
 }
 
-bool UMAttributeComponent::HealthChange(float Delta)
+bool UMAttributeComponent::IsAlive() const
+{
+	return Health > 0.f;
+}
+
+bool UMAttributeComponent::ChangeHealth(float Delta)
 {
 	Health += Delta;
+
+	OnHealthChange.Broadcast(nullptr, this, Health, Delta);
 
 	return true;
 }

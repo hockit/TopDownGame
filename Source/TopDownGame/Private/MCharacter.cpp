@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "MAttributeComponent.h"
+#include "MInteractComponent.h"
 
 // Sets default values
 AMCharacter::AMCharacter()
@@ -22,19 +23,14 @@ AMCharacter::AMCharacter()
 	SkeletalComp->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("GunSocket_01"));
 
 	AttributeComp = CreateDefaultSubobject<UMAttributeComponent>("AttributeComp");
+
+	InteractComp = CreateDefaultSubobject<UMInteractComponent>("InteractComp");
 }
 
-// Called when the game starts or when spawned
-void AMCharacter::BeginPlay()
+void AMCharacter::PostInitializeComponents()
 {
-	Super::BeginPlay();
-}
-
-// Called every frame
-void AMCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	Super::PostInitializeComponents();
+	AttributeComp->OnHealthChange.AddDynamic(this, &AMCharacter::OnHealthChange);
 }
 
 // Called to bind functionality to input
@@ -64,7 +60,13 @@ void AMCharacter::MoveRight(float Value)
 	AddMovementInput(RightVector, Value);
 }
 
-
+void AMCharacter::BasicInteract()
+{
+	if (InteractComp)
+	{
+		InteractComp->BasicInteract();
+	}
+}
 
 
 void AMCharacter::PrimaryAttack()
@@ -88,3 +90,11 @@ void AMCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
 	GetWorld()->SpawnActor<AActor>(ClassToSpawn, SpawnTransform, SpawnParams);
 }
 
+void AMCharacter::OnHealthChange(AActor* InstigatorActor, UMAttributeComponent* OwnComp, float ChangedHealth, float Delta)
+{
+	if (ChangedHealth <= 0.f && Delta < 0.f)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		DisableInput(PlayerController);
+	}
+}

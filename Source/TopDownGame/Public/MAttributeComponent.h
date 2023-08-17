@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Delegates/Delegate.h"
 #include "Components/ActorComponent.h"
 #include "MAttributeComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChange, AActor*, InstigatorActor, UMAttributeComponent*, OwnComp, float, ChangedHealth, float, Delta);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TOPDOWNGAME_API UMAttributeComponent : public UActorComponent
@@ -23,6 +25,13 @@ protected:
 
 public:
 
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthChange OnHealthChange;
+
 	UFUNCTION(BlueprintCallable)
-	bool HealthChange(float Delta);
+	bool IsAlive() const;
+
+	UFUNCTION(BlueprintCallable)
+	bool ChangeHealth(float Delta);
+
 };
